@@ -123,6 +123,58 @@ export async function getLookItems(look: Look): Promise<Item[]> {
     .filter((i): i is Item => Boolean(i));
 }
 
+export async function getLookById(id: string): Promise<Look | null> {
+  const db = await getDb();
+  return db.looks.find((l) => l.id === id) ?? null;
+}
+
+// ---------- admin: looks ----------
+
+export type LookDraft = {
+  id?: string;
+  title: string;
+  caption?: string | null;
+  photo?: Look["photo"];
+  itemIds?: string[];
+};
+
+export async function upsertLook(closetSlug: string, draft: LookDraft): Promise<Look> {
+  return mutate((db) => {
+    if (draft.id) {
+      const existing = db.looks.find((l) => l.id === draft.id);
+      if (existing) {
+        existing.title = draft.title;
+        existing.caption = draft.caption ?? null;
+        existing.itemIds = draft.itemIds ?? existing.itemIds;
+        if (draft.photo) existing.photo = draft.photo;
+        return existing;
+      }
+    }
+    const maxSort = db.looks.reduce((m, l) => Math.max(m, l.sortIndex), -1);
+    const look: Look = {
+      id: `look_${nanoid(10)}`,
+      closetSlug,
+      slug: slugify(draft.title),
+      title: draft.title,
+      caption: draft.caption ?? null,
+      photo: draft.photo ?? { url: "", alt: draft.title, width: 1000, height: 1250 },
+      itemIds: draft.itemIds ?? [],
+      sortIndex: maxSort + 1,
+      createdAt: new Date().toISOString(),
+    };
+    db.looks.push(look);
+    return look;
+  });
+}
+
+export async function deleteLook(lookId: string): Promise<{ ok: boolean }> {
+  return mutate((db) => {
+    const before = db.looks.length;
+    db.looks = db.looks.filter((l) => l.id !== lookId);
+    return { ok: db.looks.length < before };
+  });
+}
+
 // ---------- the dibs queue ----------
 
 export type CallDibsResult =

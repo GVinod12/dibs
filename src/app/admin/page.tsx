@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { isAdmin, passwordConfigured } from "@/lib/admin-auth";
 import { aiConfigured } from "@/lib/ai/catalogue";
-import { getPrimaryCloset, getClosetStats, listItems, listOffers } from "@/lib/repo";
+import { getPrimaryCloset, getClosetStats, listItems, listOffers, listLooks } from "@/lib/repo";
 import { STORE_BACKEND } from "@/lib/db/store";
 import { STORAGE_BACKEND } from "@/lib/storage";
 import { formatPrice, relativeTime } from "@/lib/format";
 import { LoginForm } from "@/components/admin/LoginForm";
 import { AdminItemRow } from "@/components/admin/AdminItemRow";
 import { OfferRow } from "@/components/admin/OfferRow";
-import { logoutAction } from "./actions";
+import { logoutAction, deleteLookAction } from "./actions";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Owner", robots: { index: false } };
@@ -24,10 +24,11 @@ export default async function AdminPage() {
   }
 
   const closet = await getPrimaryCloset();
-  const [stats, items, offers] = await Promise.all([
+  const [stats, items, offers, looks] = await Promise.all([
     getClosetStats(closet.slug),
     listItems(closet.slug),
     listOffers(closet.slug),
+    listLooks(closet.slug),
   ]);
   const pendingOffers = offers.filter((o) => o.status === "PENDING");
 
@@ -61,12 +62,18 @@ export default async function AdminPage() {
           </span>
         </div>
 
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex flex-wrap gap-3">
           <Link
             href="/admin/items/new"
             className="bg-[var(--color-ink)] px-5 py-3 font-[family-name:var(--font-anton)] text-lg uppercase text-[var(--color-acid)]"
           >
             + add a piece
+          </Link>
+          <Link
+            href="/admin/looks/new"
+            className="bg-[var(--color-cobalt)] px-5 py-3 font-[family-name:var(--font-anton)] text-lg uppercase text-white"
+          >
+            + add a look
           </Link>
           <Link
             href={`/closet/${closet.slug}`}
@@ -87,6 +94,54 @@ export default async function AdminPage() {
             <ul className="mt-4 space-y-3">
               {pendingOffers.map((o) => (
                 <OfferRow key={o.id} offer={o} />
+              ))}
+            </ul>
+          )}
+        </section>
+
+        {/* looks */}
+        <section className="mt-12">
+          <h2 className="font-[family-name:var(--font-anton)] text-2xl text-[var(--color-ink)]">
+            The lookbook {looks.length ? `(${looks.length})` : ""}
+          </h2>
+          {looks.length === 0 ? (
+            <p className="mt-3 text-sm italic text-[var(--color-fog)]">
+              No looks yet — <Link href="/admin/looks/new" className="underline">add one</Link>.
+            </p>
+          ) : (
+            <ul className="mt-4 divide-y-2 divide-[var(--color-ink)] border-y-2 border-[var(--color-ink)]">
+              {looks.map((lk) => (
+                <li key={lk.id} className="flex flex-wrap items-center gap-3 py-3">
+                  <div className="relative h-14 w-14 shrink-0 overflow-hidden border-2 border-[var(--color-ink)]">
+                    {lk.photo.url ? <img src={lk.photo.url} alt="" className="h-full w-full object-cover" /> : null}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={`/admin/looks/${lk.id}`}
+                      className="font-[family-name:var(--font-anton)] text-lg leading-none text-[var(--color-ink)] hover:text-[var(--color-pink)]"
+                    >
+                      {lk.title}
+                    </Link>
+                    <p className="mt-1 text-[0.62rem] uppercase tracking-[0.14em] text-[var(--color-fog)]">
+                      {lk.itemIds.length} piece{lk.itemIds.length === 1 ? "" : "s"} linked · {relativeTime(lk.createdAt)}
+                    </p>
+                  </div>
+                  <Link
+                    href={`/admin/looks/${lk.id}`}
+                    className="border-2 border-[var(--color-ink)] px-2 py-1 text-[0.62rem] font-bold uppercase"
+                  >
+                    edit
+                  </Link>
+                  <form action={deleteLookAction}>
+                    <input type="hidden" name="lookId" value={lk.id} />
+                    <button
+                      className="border-2 border-[var(--color-tomato)] px-2 py-1 text-[0.62rem] font-bold uppercase text-[var(--color-tomato)] hover:bg-[var(--color-tomato)] hover:text-white"
+                      aria-label={`Delete ${lk.title}`}
+                    >
+                      ✕
+                    </button>
+                  </form>
+                </li>
               ))}
             </ul>
           )}

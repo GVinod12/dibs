@@ -20,7 +20,7 @@ export default async function LooksPage({ params }: PageProps<"/closet/[slug]/lo
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <header className="relative">
           <p className="text-[0.7rem] font-bold uppercase tracking-[0.24em] text-[var(--color-paper)]/70">
-            {looks.length} looks · a personal archive
+            {looks.length} look{looks.length === 1 ? "" : "s"} · a personal archive
           </p>
           <h1 className="mt-2 font-[family-name:var(--font-anton)] text-[22vw] leading-[0.78] tracking-tight text-[var(--color-acid)] sm:text-[9rem]">
             LOOK

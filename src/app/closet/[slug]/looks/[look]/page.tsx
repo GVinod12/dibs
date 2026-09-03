@@ -105,17 +105,19 @@ export default async function LookPage({ params }: PageProps<"/closet/[slug]/loo
             </Scrawl>
           )}
 
-          <Link
-            href={`/closet/${slug}/looks/${next.slug}`}
-            className="mt-10 flex items-center justify-between border-t-2 border-[var(--color-paper)]/40 pt-4"
-          >
-            <span className="text-[0.62rem] font-bold uppercase tracking-[0.2em] text-[var(--color-paper)]/70">
-              next look
-            </span>
-            <span className="font-[family-name:var(--font-anton)] text-xl text-[var(--color-acid)]">
-              {next.title} →
-            </span>
-          </Link>
+          {looks.length > 1 ? (
+            <Link
+              href={`/closet/${slug}/looks/${next.slug}`}
+              className="mt-10 flex items-center justify-between border-t-2 border-[var(--color-paper)]/40 pt-4"
+            >
+              <span className="text-[0.62rem] font-bold uppercase tracking-[0.2em] text-[var(--color-paper)]/70">
+                next look
+              </span>
+              <span className="font-[family-name:var(--font-anton)] text-xl text-[var(--color-acid)]">
+                {next.title} →
+              </span>
+            </Link>
+          ) : null}
         </div>
       </div>
     </div>

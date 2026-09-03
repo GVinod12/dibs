@@ -10,6 +10,7 @@ import type { CatalogueDraft } from "@/lib/ai/prompt";
 import { saveImage } from "@/lib/storage";
 import {
   deleteItem,
+  deleteLook,
   finalizeItem,
   getPrimaryCloset,
   ownerRemoveClaim,
@@ -17,6 +18,8 @@ import {
   setItemStatus,
   slugify,
   upsertItem,
+  upsertLook,
+  type LookDraft,
 } from "@/lib/repo";
 import type { Photo } from "@/lib/db/types";
 import { CATEGORIES, CONDITIONS, type Category, type Condition, type ItemStatus } from "@/lib/constants";
@@ -228,4 +231,77 @@ export async function saveItemAction(_prev: SaveState, formData: FormData): Prom
   revalidatePath("/admin");
   revalidatePath("/closet", "layout");
   return { status: "saved", slug: item.slug };
+}
+
+// ---------- looks ----------
+
+export type LookSaveState =
+  | { status: "idle" }
+  | { status: "error"; message: string }
+  | { status: "saved"; slug: string };
+
+const lookSchema = z.object({
+  id: z.string().optional(),
+  title: z.string().trim().min(1, "Give the look a title."),
+  caption: z.string().trim().max(280).optional(),
+  altText: z.string().trim().max(200).optional(),
+  itemIds: z.string().optional(), // comma-separated ids
+  photoUrl: z.string().optional(), // existing photo, when editing
+  photoW: z.string().optional(),
+  photoH: z.string().optional(),
+});
+
+export async function saveLookAction(_prev: LookSaveState, formData: FormData): Promise<LookSaveState> {
+  await assertAdmin();
+  const parsed = lookSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return { status: "error", message: parsed.error.issues[0]?.message ?? "Check the form." };
+  }
+  const d = parsed.data;
+  const closet = await getPrimaryCloset();
+
+  let photo: LookDraft["photo"] | undefined;
+  const upload = formData.get("photo");
+  if (upload instanceof File && upload.size > 0) {
+    if (upload.size > 8 * 1024 * 1024) {
+      return { status: "error", message: "That photo's over 8 MB — shrink it a touch." };
+    }
+    const saved = await saveImage(await upload.arrayBuffer(), upload.type);
+    photo = {
+      url: saved.url,
+      alt: d.altText || d.title,
+      width: Number(d.photoW) || 1000,
+      height: Number(d.photoH) || 1250,
+    };
+  } else if (d.photoUrl) {
+    photo = {
+      url: d.photoUrl,
+      alt: d.altText || d.title,
+      width: Number(d.photoW) || 1000,
+      height: Number(d.photoH) || 1250,
+    };
+  }
+
+  if (!d.id && !photo) {
+    return { status: "error", message: "A look needs a photo." };
+  }
+
+  const look = await upsertLook(closet.slug, {
+    id: d.id || undefined,
+    title: d.title,
+    caption: d.caption || null,
+    photo,
+    itemIds: (d.itemIds ?? "").split(",").map((s) => s.trim()).filter(Boolean),
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/closet", "layout");
+  return { status: "saved", slug: look.slug };
+}
+
+export async function deleteLookAction(formData: FormData) {
+  await assertAdmin();
+  await deleteLook(String(formData.get("lookId")));
+  revalidatePath("/admin");
+  revalidatePath("/closet", "layout");
 }
