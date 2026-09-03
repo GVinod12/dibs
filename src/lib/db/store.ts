@@ -112,14 +112,24 @@ async function pgEnsureSchema(): Promise<void> {
 async function pgLoadRow(): Promise<Row> {
   await pgEnsureSchema();
   const sql = await pgSql();
+
   const rows = (await sql`SELECT doc, version FROM dibs_store WHERE id = 'main'`) as Row[];
   if (rows.length) return { doc: rows[0].doc, version: String(rows[0].version) };
 
+  // first boot: seed. RETURNING tells us if our insert won the race.
   const seed = seedDatabase();
-  await sql`INSERT INTO dibs_store (id, doc, version) VALUES ('main', ${JSON.stringify(seed)}::jsonb, 0)
-            ON CONFLICT (id) DO NOTHING`;
+  const inserted = (await sql`
+    INSERT INTO dibs_store (id, doc, version) VALUES ('main', ${JSON.stringify(seed)}::jsonb, 0)
+    ON CONFLICT (id) DO NOTHING
+    RETURNING doc, version`) as Row[];
+  if (inserted.length) return { doc: inserted[0].doc, version: String(inserted[0].version) };
+
+  // another instance seeded concurrently — read theirs
   const again = (await sql`SELECT doc, version FROM dibs_store WHERE id = 'main'`) as Row[];
-  return { doc: again[0].doc, version: String(again[0].version) };
+  if (again.length) return { doc: again[0].doc, version: String(again[0].version) };
+
+  // last resort (e.g. DB unreachable mid-build) — serve the seed, don't crash
+  return { doc: seed, version: "0" };
 }
 
 async function pgGetDb(): Promise<Database> {

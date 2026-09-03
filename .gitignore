@@ -43,3 +43,6 @@ next-env.d.ts
 
 # DIBS: local runtime store is ignored; initial.json + seed uploads are committed
 /data/db.json
+
+.vercel
+.env*

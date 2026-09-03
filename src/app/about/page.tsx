@@ -3,6 +3,8 @@ import Link from "next/link";
 import { getPrimaryCloset } from "@/lib/repo";
 import { MarqueeBar, Sticker } from "@/components/collage";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "How DIBS works",
   description: "The idea behind DIBS — a shareable closet for gifting and selling clothes to friends before a move.",
