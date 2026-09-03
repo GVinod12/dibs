@@ -72,18 +72,18 @@ directly.
 - **Reset:** delete `data/db.json`.
 - **Inspect:** open the file, it's plain JSON.
 
-### Deploying (persisting the store + uploads)
+### Deploying
 
-The JSON file and `public/uploads/` need a writable disk. Options:
+Both `store.ts` and `storage.ts` are **dual-mode**, chosen by env var:
 
-- **A host with a volume** (Railway, Fly.io, Render, a VPS) — works as-is.
-- **Serverless (Vercel)** — the filesystem is read-only at runtime. Swap two
-  files, nothing else changes:
-  - [`src/lib/db/store.ts`](src/lib/db/store.ts) → Postgres / SQLite / Turso
-  - [`src/lib/storage.ts`](src/lib/storage.ts) → S3 / Vercel Blob
+| env | store | images |
+|---|---|---|
+| none | `data/db.json` | `public/uploads/` |
+| `DATABASE_URL` / `POSTGRES_URL` | Postgres (Neon), one JSON row + optimistic locking | — |
+| `BLOB_READ_WRITE_TOKEN` | — | Vercel Blob |
 
-The repository layer and every page stay untouched — that seam is the whole
-point of the architecture.
+Live at **https://dibs-beige.vercel.app** (Vercel + Neon Postgres + Vercel Blob,
+all free tier). Full setup and re-deploy steps in [DEPLOY.md](DEPLOY.md).
 
 ---
 
