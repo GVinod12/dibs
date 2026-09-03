@@ -55,7 +55,7 @@ export function ItemCard({ item, closetSlug, priority = false, className }: Prop
           <div className="aspect-[4/5] bg-[var(--color-paper-line)] shadow-ink" />
         )}
 
-        <div className="absolute -top-2 left-2 flex flex-wrap gap-1.5">
+        <div className="pointer-events-none absolute left-2 top-2 z-10 flex max-w-[calc(100%-1rem)] flex-wrap gap-1.5">
           <StatusLabel status={item.status} outlined />
           {item.type === "SELL" && item.status === "AVAILABLE" ? (
             <StatusLabel type="SELL" outlined />
