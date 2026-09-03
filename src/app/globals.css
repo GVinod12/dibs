@@ -1,0 +1,260 @@
+@import "tailwindcss";
+
+/* ============================================================
+   DIBS — design tokens
+   Implemented from DIBS.dc.html (Claude Design art-direction board).
+   Principle: "VISUAL CHAOS, PERFECT UX."
+   - chrome stays black and fixed
+   - state is always a coloured LABEL, never a colour alone
+   - only decoration rotates — never text you must read
+   - shadows are hard offsets, no blur
+   ============================================================ */
+
+@theme {
+  --color-paper: #f4eee4;
+  --color-paper-line: #e4daca;
+  --color-ink: #14110f;
+  --color-espresso: #221f1c;
+  --color-ink-hair: #45403a;
+  --color-ink-hair-soft: #55504a;
+
+  --color-pink: #ff2d8b; /* DIBSED */
+  --color-tomato: #f0402a; /* GONE TO A GOOD HOME */
+  --color-cobalt: #1b3fd8; /* FOR SALE / links */
+  --color-acid: #c6f000; /* AVAILABLE / CTAs */
+  --color-yellow: #ffd84d; /* tape, hearts, accents */
+  --color-lilac: #c9a7ff; /* gift / editorial highlight */
+
+  --color-fog: #8e877e;
+  --color-fog-dark: #bdb6ac;
+
+  --font-display: var(--font-anton), "Arial Narrow", "Haettenschweiler", sans-serif;
+  --font-serif: var(--font-instrument-serif), "Times New Roman", Georgia, serif;
+  --font-grotesk: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-hand: var(--font-caveat), "Comic Sans MS", cursive;
+
+  --ease-slam: cubic-bezier(0.16, 1.36, 0.3, 1);
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --grain-opacity: 0.35;
+    --tame: 1;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    background: var(--color-paper);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-grotesk);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Clip decorative bleed here, NOT on <body> — clipping a scroll-ancestor of
+     the sticky nav is what created the phantom gap. `main` / these wrappers are
+     siblings of the chrome, so sticky still resolves to the viewport. */
+  .bleed-clip {
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: var(--color-pink);
+    color: var(--color-paper);
+  }
+
+  a {
+    color: var(--color-cobalt);
+    text-decoration: none;
+  }
+  a:hover {
+    color: var(--color-pink);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 0.84;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-cobalt);
+    outline-offset: 3px;
+    border-radius: 1px;
+  }
+  .on-dark :focus-visible {
+    outline-color: var(--color-acid);
+  }
+
+  @media (max-width: 640px) {
+    :root {
+      --tame: 0.4;
+    }
+  }
+}
+
+@layer components {
+  .editorial {
+    font-family: var(--font-serif);
+    font-style: italic;
+    line-height: 1.05;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+  .hand {
+    font-family: var(--font-hand);
+    font-weight: 600;
+    line-height: 1.1;
+    text-transform: none;
+  }
+
+  /* outlined display type (the giant pink DIBS.) */
+  .stroke-ink {
+    -webkit-text-stroke: 3px var(--color-ink);
+    paint-order: stroke fill;
+  }
+  @media (max-width: 640px) {
+    .stroke-ink {
+      -webkit-text-stroke-width: 2px;
+    }
+  }
+
+  /* graph-paper background for cream screens */
+  .paper-grid {
+    background-image:
+      linear-gradient(var(--color-paper-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-paper-line) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  @media (max-width: 640px) {
+    .paper-grid {
+      background-size: 32px 32px;
+    }
+  }
+
+  .hatch {
+    background-image: repeating-linear-gradient(
+      45deg,
+      color-mix(in srgb, currentColor 22%, transparent) 0 12px,
+      transparent 12px 24px
+    );
+  }
+
+  .grain::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .shadow-ink {
+    box-shadow: 10px 12px 0 var(--color-ink);
+  }
+  .shadow-ink-sm {
+    box-shadow: 6px 7px 0 var(--color-ink);
+  }
+  .shadow-pink {
+    box-shadow: 9px 9px 0 var(--color-pink);
+  }
+  .shadow-cobalt {
+    box-shadow: 8px 8px 0 var(--color-cobalt);
+  }
+  .shadow-tomato {
+    box-shadow: 8px 8px 0 var(--color-tomato);
+  }
+  .shadow-soft {
+    box-shadow: 8px 10px 0 rgba(20, 17, 15, 0.22);
+  }
+}
+
+@layer utilities {
+  @keyframes wob {
+    0%,
+    100% {
+      transform: rotate(var(--wob-a, -4deg));
+    }
+    50% {
+      transform: rotate(var(--wob-b, 4deg));
+    }
+  }
+  .animate-wob {
+    animation: wob 3.2s ease-in-out infinite;
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+
+  @keyframes stamp-slam {
+    0% {
+      transform: scale(2.7) rotate(-24deg);
+      opacity: 0;
+    }
+    55% {
+      transform: scale(0.9) rotate(-11deg);
+      opacity: 1;
+    }
+    75% {
+      transform: scale(1.05) rotate(-14deg);
+    }
+    100% {
+      transform: scale(1) rotate(-13deg);
+      opacity: 1;
+    }
+  }
+  .animate-stamp-slam {
+    animation: stamp-slam 0.55s var(--ease-slam) both;
+  }
+
+  @keyframes confetti-fall {
+    0% {
+      transform: translateY(-20px) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(320px) rotate(540deg);
+      opacity: 0;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .grain::after {
+    opacity: 0.15;
+  }
+}
