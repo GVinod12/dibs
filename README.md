@@ -6,6 +6,10 @@ A private, shareable digital closet. Friends open a link, browse the pieces you'
 parting with, and **call dibs** on what they want — **GIFT** (free) or **SELL**
 (priced, with an offer flow). No group chat, no app, no accounts.
 
+Each piece takes a **queue of up to 3**: the first person holds it, the next two
+wait. If someone ahead drops out — they pass, or the owner marks them as fallen
+through — the next person is promoted automatically.
+
 Built as a portfolio piece: product thinking, creative direction, UX/UI, a real
 AI integration, and Claude Code. Art direction implemented from a Claude Design
 board (`DIBS.dc.html`) — *"visual chaos, perfect UX."*
