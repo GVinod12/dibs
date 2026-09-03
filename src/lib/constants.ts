@@ -48,9 +48,17 @@ export const TYPE_STYLE: Record<ItemType, StateStyle> = {
   SELL: { label: "FOR SALE", bg: "var(--color-cobalt)", fg: "#fff" },
 };
 
-/** an item is claimable while it is still AVAILABLE */
-export function isClaimable(status: ItemStatus): boolean {
-  return status === "AVAILABLE";
+/** an item takes dibs until it's finalised (SOLD / GIVEN) */
+export function acceptsDibs(status: ItemStatus): boolean {
+  return status === "AVAILABLE" || status === "DIBSED";
+}
+
+/** how many people can be in line for one piece: the holder + 2 on the waitlist */
+export const MAX_DIBS_QUEUE = 3;
+
+/** ordinal for a queue position (1-indexed): "first" | "next" | "third" */
+export function queueOrdinal(position: number): string {
+  return ["first", "next", "third", "fourth"][position - 1] ?? `#${position}`;
 }
 
 export const CURRENCY = "EUR";

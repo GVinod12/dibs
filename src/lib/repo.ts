@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 import { getDb, mutate } from "./db/store";
-import type { Item, Look, Offer, Closet } from "./db/types";
+import type { Item, Look, Offer, Closet, DibsClaim } from "./db/types";
+import { MAX_DIBS_QUEUE } from "./constants";
 import type { Category, ItemStatus, ItemType, OfferStatus } from "./constants";
 
 /**
@@ -33,7 +34,7 @@ export async function getClosetStats(slug: string): Promise<ClosetStats> {
   const db = await getDb();
   const items = db.items.filter((i) => i.closetSlug === slug);
   const claimants = new Set<string>();
-  for (const i of items) if (i.claimantName) claimants.add(i.claimantName.toLowerCase());
+  for (const i of items) for (const c of i.queue) claimants.add(c.name.toLowerCase());
   for (const o of db.offers) claimants.add(o.name.toLowerCase());
   return {
     pieces: items.length,
@@ -122,27 +123,103 @@ export async function getLookItems(look: Look): Promise<Item[]> {
     .filter((i): i is Item => Boolean(i));
 }
 
-// ---------- claiming (gifts) ----------
+// ---------- the dibs queue ----------
 
-export type ClaimResult =
-  | { ok: true; item: Item }
-  | { ok: false; reason: "not-found" | "not-available" | "not-a-gift" };
+export type CallDibsResult =
+  | { ok: true; item: Item; claimId: string; position: number }
+  | {
+      ok: false;
+      reason: "not-found" | "gone" | "queue-full" | "already-in-line" | "make-an-offer";
+    };
 
-export async function claimGift(input: {
+/**
+ * Join the line for a piece. Works for GIFT and for SELL "at asking price".
+ * The queue holds up to MAX_DIBS_QUEUE people; queue[0] holds the piece, the
+ * rest are the waitlist and move up if someone ahead drops out.
+ */
+export async function callDibs(input: {
   itemId: string;
   name: string;
+  contact: string;
   note?: string | null;
-}): Promise<ClaimResult> {
+  /** for SELL: only "asking" joins the queue; a lower number must go via createOffer */
+  atAsking?: boolean;
+}): Promise<CallDibsResult> {
   return mutate((db) => {
     const item = db.items.find((i) => i.id === input.itemId);
     if (!item) return { ok: false as const, reason: "not-found" as const };
-    if (item.type !== "GIFT") return { ok: false as const, reason: "not-a-gift" as const };
-    if (item.status !== "AVAILABLE") return { ok: false as const, reason: "not-available" as const };
+    if (item.status === "SOLD" || item.status === "GIVEN") {
+      return { ok: false as const, reason: "gone" as const };
+    }
+    if (item.type === "SELL" && input.atAsking === false) {
+      return { ok: false as const, reason: "make-an-offer" as const };
+    }
+    if (item.queue.length >= MAX_DIBS_QUEUE) {
+      return { ok: false as const, reason: "queue-full" as const };
+    }
+    const name = input.name.trim().slice(0, 60);
+    const contact = input.contact.trim().slice(0, 120);
+    if (item.queue.some((c) => c.name.toLowerCase() === name.toLowerCase())) {
+      return { ok: false as const, reason: "already-in-line" as const };
+    }
+    const claim: DibsClaim = {
+      id: `clm_${nanoid(10)}`,
+      name,
+      contact,
+      note: input.note?.trim().slice(0, 240) || null,
+      amountCents: item.type === "SELL" ? item.priceCents : null,
+      source: "dibs",
+      at: new Date().toISOString(),
+    };
+    item.queue.push(claim);
     item.status = "DIBSED";
-    item.claimantName = input.name.trim().slice(0, 60);
-    item.claimantNote = input.note?.trim().slice(0, 240) || null;
-    item.claimedAt = new Date().toISOString();
-    return { ok: true as const, item };
+    return { ok: true as const, item, claimId: claim.id, position: item.queue.length };
+  });
+}
+
+export type ReleaseResult =
+  | { ok: true; item: Item; promotedName: string | null; nowAvailable: boolean }
+  | { ok: false; reason: "not-found" | "not-in-queue" };
+
+/** A person drops their spot. Whoever's behind them moves up. */
+export async function releaseDibs(input: {
+  itemId: string;
+  claimId: string;
+}): Promise<ReleaseResult> {
+  return mutate((db) => {
+    const item = db.items.find((i) => i.id === input.itemId);
+    if (!item) return { ok: false as const, reason: "not-found" as const };
+    const idx = item.queue.findIndex((c) => c.id === input.claimId);
+    if (idx === -1) return { ok: false as const, reason: "not-in-queue" as const };
+    const wasHolder = idx === 0;
+    item.queue.splice(idx, 1);
+    if (item.queue.length === 0 && item.status === "DIBSED") item.status = "AVAILABLE";
+    return {
+      ok: true as const,
+      item,
+      promotedName: wasHolder && item.queue.length > 0 ? item.queue[0].name : null,
+      nowAvailable: item.queue.length === 0,
+    };
+  });
+}
+
+/** Owner: kick a specific person out of the line (same effect as them releasing). */
+export async function ownerRemoveClaim(itemId: string, claimId: string): Promise<{ ok: boolean }> {
+  const r = await releaseDibs({ itemId, claimId });
+  return { ok: r.ok };
+}
+
+/** Owner: hand the piece over — freezes it to the current holder, drops the waitlist. */
+export async function finalizeItem(
+  itemId: string,
+  outcome: "SOLD" | "GIVEN",
+): Promise<{ ok: boolean }> {
+  return mutate((db) => {
+    const item = db.items.find((i) => i.id === itemId);
+    if (!item) return { ok: false };
+    item.status = outcome;
+    item.queue = item.queue.slice(0, 1);
+    return { ok: true };
   });
 }
 
@@ -204,11 +281,23 @@ export async function respondToOffer(
     offer.status = decision;
     if (decision === "ACCEPTED") {
       const item = db.items.find((i) => i.id === offer.itemId);
-      if (item && item.status === "AVAILABLE") {
+      if (
+        item &&
+        item.status !== "SOLD" &&
+        item.status !== "GIVEN" &&
+        item.queue.length < MAX_DIBS_QUEUE &&
+        !item.queue.some((c) => c.name.toLowerCase() === offer.name.toLowerCase())
+      ) {
+        item.queue.push({
+          id: `clm_${nanoid(10)}`,
+          name: offer.name,
+          contact: offer.contact,
+          note: offer.message,
+          amountCents: offer.amountCents ?? item.priceCents,
+          source: "offer",
+          at: new Date().toISOString(),
+        });
         item.status = "DIBSED";
-        item.claimantName = offer.name;
-        item.claimantNote = offer.message;
-        item.claimedAt = new Date().toISOString();
       }
       // decline the sibling offers
       for (const o of db.offers) {
@@ -257,9 +346,7 @@ export async function upsertItem(
       priceCents: draft.priceCents ?? null,
       currency: draft.currency ?? "EUR",
       status: draft.status ?? "AVAILABLE",
-      claimantName: draft.claimantName ?? null,
-      claimantNote: draft.claimantNote ?? null,
-      claimedAt: draft.claimedAt ?? null,
+      queue: draft.queue ?? [],
       photos: draft.photos ?? [],
       story: draft.story ?? null,
       aiGenerated: draft.aiGenerated ?? false,
@@ -273,23 +360,13 @@ export async function upsertItem(
   });
 }
 
-export async function setItemStatus(
-  itemId: string,
-  status: ItemStatus,
-  claimantName?: string | null,
-): Promise<{ ok: boolean }> {
+export async function setItemStatus(itemId: string, status: ItemStatus): Promise<{ ok: boolean }> {
   return mutate((db) => {
     const item = db.items.find((i) => i.id === itemId);
     if (!item) return { ok: false };
     item.status = status;
-    if (status === "AVAILABLE") {
-      item.claimantName = null;
-      item.claimantNote = null;
-      item.claimedAt = null;
-    } else if (claimantName !== undefined) {
-      item.claimantName = claimantName;
-      item.claimedAt = item.claimedAt ?? new Date().toISOString();
-    }
+    if (status === "AVAILABLE") item.queue = [];
+    if (status === "SOLD" || status === "GIVEN") item.queue = item.queue.slice(0, 1);
     return { ok: true };
   });
 }

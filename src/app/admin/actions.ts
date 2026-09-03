@@ -10,7 +10,9 @@ import type { CatalogueDraft } from "@/lib/ai/prompt";
 import { saveImage } from "@/lib/storage";
 import {
   deleteItem,
+  finalizeItem,
   getPrimaryCloset,
+  ownerRemoveClaim,
   respondToOffer,
   setItemStatus,
   slugify,
@@ -51,8 +53,25 @@ export async function setStatusAction(formData: FormData) {
   await assertAdmin();
   const id = String(formData.get("itemId"));
   const status = String(formData.get("status")) as ItemStatus;
-  const claimant = formData.get("claimant") ? String(formData.get("claimant")) : undefined;
-  await setItemStatus(id, status, claimant);
+  await setItemStatus(id, status);
+  revalidatePath("/admin");
+  revalidatePath("/closet", "layout");
+}
+
+/** Owner hands the piece over — SOLD or GIVEN, waitlist cleared. */
+export async function finalizeItemAction(formData: FormData) {
+  await assertAdmin();
+  const id = String(formData.get("itemId"));
+  const outcome = String(formData.get("outcome")) === "SOLD" ? "SOLD" : "GIVEN";
+  await finalizeItem(id, outcome);
+  revalidatePath("/admin");
+  revalidatePath("/closet", "layout");
+}
+
+/** Owner drops someone from the line (e.g. #1 went quiet) — next person moves up. */
+export async function bumpClaimAction(formData: FormData) {
+  await assertAdmin();
+  await ownerRemoveClaim(String(formData.get("itemId")), String(formData.get("claimId")));
   revalidatePath("/admin");
   revalidatePath("/closet", "layout");
 }

@@ -17,9 +17,10 @@ export default async function DibsPage({ params }: PageProps<"/closet/[slug]/dib
   if (!closet) return null;
 
   const claimed = items
-    .filter((i) => i.status !== "AVAILABLE" && i.claimantName)
-    .sort((a, b) => +new Date(b.claimedAt ?? 0) - +new Date(a.claimedAt ?? 0));
+    .filter((i) => i.queue.length > 0)
+    .sort((a, b) => +new Date(b.queue[0]?.at ?? 0) - +new Date(a.queue[0]?.at ?? 0));
   const available = items.filter((i) => i.status === "AVAILABLE").length;
+  const waitlisted = claimed.reduce((n, i) => n + Math.max(0, i.queue.length - 1), 0);
 
   return (
     <div className="paper-grid min-h-dvh">
@@ -31,8 +32,15 @@ export default async function DibsPage({ params }: PageProps<"/closet/[slug]/dib
         </h1>
         <p className="mt-3 font-[family-name:var(--font-instrument-serif)] text-xl italic normal-case text-[var(--color-ink)]">
           <span className="font-[family-name:var(--font-space-grotesk)] not-italic">{claimed.length}</span> claimed ·{" "}
-          <span className="font-[family-name:var(--font-space-grotesk)] not-italic">{available}</span> still going ·
-          everything else gets a bin bag.
+          <span className="font-[family-name:var(--font-space-grotesk)] not-italic">{available}</span> still going
+          {waitlisted > 0 ? (
+            <>
+              {" "}
+              · <span className="font-[family-name:var(--font-space-grotesk)] not-italic">{waitlisted}</span> waiting in
+              the wings
+            </>
+          ) : null}
+          . everything else gets a bin bag.
         </p>
 
         {/* pending offers */}
@@ -106,16 +114,17 @@ export default async function DibsPage({ params }: PageProps<"/closet/[slug]/dib
                     <p className="mt-1.5 flex flex-wrap items-center gap-2">
                       <StatusLabel status={it.status} />
                       <span className="font-[family-name:var(--font-caveat)] text-lg text-[var(--color-ink)]">
-                        {it.status === "DIBSED" ? "♡ by" : "→"} {it.claimantName}
+                        {it.status === "SOLD" || it.status === "GIVEN" ? "→" : "♡ by"} {it.queue[0]?.name}
+                        {it.queue.length > 1 ? `, then ${it.queue.slice(1).map((c) => c.name).join(", ")}` : ""}
                       </span>
                     </p>
-                    {it.claimantNote ? (
-                      <p className="mt-1 text-sm italic text-[var(--color-fog)]">&ldquo;{it.claimantNote}&rdquo;</p>
+                    {it.queue[0]?.note ? (
+                      <p className="mt-1 text-sm italic text-[var(--color-fog)]">&ldquo;{it.queue[0].note}&rdquo;</p>
                     ) : null}
                   </div>
-                  {it.claimedAt ? (
+                  {it.queue[0]?.at ? (
                     <span className="hidden text-[0.62rem] uppercase tracking-[0.16em] text-[var(--color-fog)] sm:block">
-                      {relativeTime(it.claimedAt)}
+                      {relativeTime(it.queue[0].at)}
                     </span>
                   ) : null}
                 </li>

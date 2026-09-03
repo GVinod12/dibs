@@ -88,6 +88,11 @@ export default async function ItemPage({ params }: PageProps<"/closet/[slug]/ite
           <div className="flex flex-wrap items-center gap-2">
             <StatusLabel status={item.status} outlined size="md" />
             <StatusLabel type={item.type} outlined size="md" />
+            {item.queue.length > 1 && item.status === "DIBSED" ? (
+              <span className="border-2 border-[var(--color-ink)] bg-[var(--color-lilac)] px-2 py-2 text-[0.62rem] font-bold uppercase tracking-[0.14em] text-[var(--color-ink)]">
+                {item.queue.length - 1} waiting
+              </span>
+            ) : null}
           </div>
 
           <p className="mt-4 text-[0.62rem] font-bold uppercase tracking-[0.22em] text-[var(--color-fog)]">

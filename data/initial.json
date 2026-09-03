@@ -35,9 +35,6 @@
       "priceCents": null,
       "currency": "EUR",
       "status": "AVAILABLE",
-      "claimantName": null,
-      "claimantNote": null,
-      "claimedAt": null,
       "photos": [
         {
           "url": "/uploads/1788224756076-ygvGKOI_.jpg",
@@ -51,7 +48,8 @@
       "aiPriceLowCents": null,
       "aiPriceHighCents": null,
       "sortIndex": 0,
-      "createdAt": "2026-09-01T01:05:56.085Z"
+      "createdAt": "2026-09-01T01:05:56.085Z",
+      "queue": []
     },
     {
       "id": "itm_eJlf7Wr09Y",
@@ -70,9 +68,6 @@
       "priceCents": null,
       "currency": "EUR",
       "status": "AVAILABLE",
-      "claimantName": null,
-      "claimantNote": null,
-      "claimedAt": null,
       "photos": [
         {
           "url": "/uploads/1788224925063-zH7O4Tav.jpg",
@@ -86,7 +81,8 @@
       "aiPriceLowCents": null,
       "aiPriceHighCents": null,
       "sortIndex": 1,
-      "createdAt": "2026-09-01T01:08:45.066Z"
+      "createdAt": "2026-09-01T01:08:45.066Z",
+      "queue": []
     },
     {
       "id": "itm_OAiXHMi2Jp",
@@ -105,9 +101,6 @@
       "priceCents": null,
       "currency": "EUR",
       "status": "AVAILABLE",
-      "claimantName": null,
-      "claimantNote": null,
-      "claimedAt": null,
       "photos": [
         {
           "url": "/uploads/1788225047865-utzyBFDU.jpg",
@@ -121,7 +114,8 @@
       "aiPriceLowCents": null,
       "aiPriceHighCents": null,
       "sortIndex": 2,
-      "createdAt": "2026-09-01T01:10:47.874Z"
+      "createdAt": "2026-09-01T01:10:47.874Z",
+      "queue": []
     },
     {
       "id": "itm_fSzZMoMDDs",
@@ -140,9 +134,6 @@
       "priceCents": null,
       "currency": "EUR",
       "status": "AVAILABLE",
-      "claimantName": null,
-      "claimantNote": null,
-      "claimedAt": null,
       "photos": [
         {
           "url": "/uploads/1788225189812-zTNzM3HB.jpg",
@@ -156,7 +147,8 @@
       "aiPriceLowCents": null,
       "aiPriceHighCents": null,
       "sortIndex": 3,
-      "createdAt": "2026-09-01T01:13:09.818Z"
+      "createdAt": "2026-09-01T01:13:09.818Z",
+      "queue": []
     },
     {
       "id": "itm_4zf_pBlLuC",
@@ -175,9 +167,6 @@
       "priceCents": null,
       "currency": "EUR",
       "status": "AVAILABLE",
-      "claimantName": null,
-      "claimantNote": null,
-      "claimedAt": null,
       "photos": [
         {
           "url": "/uploads/1788225305032-qir6YUBV.jpg",
@@ -191,7 +180,8 @@
       "aiPriceLowCents": null,
       "aiPriceHighCents": null,
       "sortIndex": 4,
-      "createdAt": "2026-09-01T01:15:05.035Z"
+      "createdAt": "2026-09-01T01:15:05.035Z",
+      "queue": []
     },
     {
       "id": "itm_SfLyFDn40V",
@@ -210,9 +200,6 @@
       "priceCents": null,
       "currency": "EUR",
       "status": "AVAILABLE",
-      "claimantName": null,
-      "claimantNote": null,
-      "claimedAt": null,
       "photos": [
         {
           "url": "/uploads/1788225432693-ysnDpJVo.jpg",
@@ -226,7 +213,8 @@
       "aiPriceLowCents": null,
       "aiPriceHighCents": null,
       "sortIndex": 5,
-      "createdAt": "2026-09-01T01:17:12.696Z"
+      "createdAt": "2026-09-01T01:17:12.696Z",
+      "queue": []
     },
     {
       "id": "itm_FiQfxvcnbq",
@@ -245,9 +233,6 @@
       "priceCents": null,
       "currency": "EUR",
       "status": "AVAILABLE",
-      "claimantName": null,
-      "claimantNote": null,
-      "claimedAt": null,
       "photos": [
         {
           "url": "/uploads/1788225500361-ZpDqUHF1.jpg",
@@ -261,7 +246,8 @@
       "aiPriceLowCents": null,
       "aiPriceHighCents": null,
       "sortIndex": 6,
-      "createdAt": "2026-09-01T01:18:20.367Z"
+      "createdAt": "2026-09-01T01:18:20.367Z",
+      "queue": []
     },
     {
       "id": "itm_4gOcDSwvHX",
@@ -280,9 +266,6 @@
       "priceCents": null,
       "currency": "EUR",
       "status": "AVAILABLE",
-      "claimantName": null,
-      "claimantNote": null,
-      "claimedAt": null,
       "photos": [
         {
           "url": "/uploads/1788225567950-_zpv6EFI.jpg",
@@ -296,7 +279,8 @@
       "aiPriceLowCents": null,
       "aiPriceHighCents": null,
       "sortIndex": 7,
-      "createdAt": "2026-09-01T01:19:27.955Z"
+      "createdAt": "2026-09-01T01:19:27.955Z",
+      "queue": []
     }
   ],
   "looks": [],

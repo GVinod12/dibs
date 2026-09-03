@@ -2,19 +2,37 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { claimGift, createOffer, getItemById } from "@/lib/repo";
+import { callDibs, releaseDibs, createOffer, getItemById } from "@/lib/repo";
+
+function revalidateCloset(slug: string) {
+  revalidatePath(`/closet/${slug}`);
+  revalidatePath(`/closet/${slug}/looks`);
+  revalidatePath(`/closet/${slug}/dibs`);
+  revalidatePath("/admin");
+}
+
+// ---------------------------------------------------------------- call dibs
 
 export type DibsState =
   | { status: "idle" }
   | { status: "error"; message: string }
-  | { status: "claimed"; itemName: string; claimant: string };
+  | {
+      status: "in-line";
+      itemName: string;
+      claimant: string;
+      claimId: string;
+      /** 1 = holds it now, 2/3 = on the waitlist */
+      position: number;
+    };
 
 const claimSchema = z.object({
   itemId: z.string().min(1),
   closetSlug: z.string().min(1),
   itemSlug: z.string().min(1),
   name: z.string().trim().min(1, "Pop your name in first.").max(60),
+  contact: z.string().trim().min(3, "Leave a way to reach you — handle, number, anything.").max(120),
   note: z.string().trim().max(240).optional(),
+  atAsking: z.enum(["yes", "no"]).optional(),
 });
 
 export async function callDibsAction(_prev: DibsState, formData: FormData): Promise<DibsState> {
@@ -22,28 +40,69 @@ export async function callDibsAction(_prev: DibsState, formData: FormData): Prom
   if (!parsed.success) {
     return { status: "error", message: parsed.error.issues[0]?.message ?? "Something's off with that." };
   }
-  const { itemId, closetSlug, itemSlug, name, note } = parsed.data;
+  const { itemId, closetSlug, itemSlug, name, contact, note, atAsking } = parsed.data;
 
-  const result = await claimGift({ itemId, name, note });
+  const result = await callDibs({
+    itemId,
+    name,
+    contact,
+    note,
+    atAsking: atAsking === "no" ? false : true,
+  });
   if (!result.ok) {
-    const msg =
-      result.reason === "not-available"
-        ? "Ah — someone got there first. It's gone."
-        : result.reason === "not-a-gift"
-          ? "This one's for sale, not a gift."
-          : "Couldn't find that piece.";
+    const msg = {
+      "not-found": "Couldn't find that piece.",
+      gone: "Too late — this one's already gone to its new home.",
+      "queue-full": "The line's full — three people are already on it. Try another piece.",
+      "already-in-line": "You're already in line for this one.",
+      "make-an-offer": "This one's for sale — make an offer instead.",
+    }[result.reason];
     return { status: "error", message: msg };
   }
 
-  // NB: deliberately not revalidating this item page — the client panel owns
-  // the celebratory "it's yours" state until the visitor navigates away.
-  revalidatePath(`/closet/${closetSlug}`);
-  revalidatePath(`/closet/${closetSlug}/looks`);
-  revalidatePath(`/closet/${closetSlug}/dibs`);
-  revalidatePath("/admin");
-  void itemSlug;
-  return { status: "claimed", itemName: result.item.name, claimant: name };
+  revalidateCloset(closetSlug);
+  void itemSlug; // this item page's panel owns the celebratory state until navigation
+  return {
+    status: "in-line",
+    itemName: result.item.name,
+    claimant: name,
+    claimId: result.claimId,
+    position: result.position,
+  };
 }
+
+// ---------------------------------------------------------------- release
+
+export type ReleaseState =
+  | { status: "idle" }
+  | { status: "error"; message: string }
+  | { status: "released"; promotedName: string | null };
+
+const releaseSchema = z.object({
+  itemId: z.string().min(1),
+  claimId: z.string().min(1),
+  closetSlug: z.string().min(1),
+  itemSlug: z.string().min(1),
+});
+
+export async function releaseDibsAction(_prev: ReleaseState, formData: FormData): Promise<ReleaseState> {
+  const parsed = releaseSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { status: "error", message: "Couldn't do that." };
+  const { itemId, claimId, closetSlug, itemSlug } = parsed.data;
+
+  const result = await releaseDibs({ itemId, claimId });
+  if (!result.ok) {
+    return {
+      status: "error",
+      message: result.reason === "not-in-queue" ? "You're not in line for this one." : "Couldn't find that piece.",
+    };
+  }
+  revalidateCloset(closetSlug);
+  revalidatePath(`/closet/${closetSlug}/item/${itemSlug}`);
+  return { status: "released", promotedName: result.promotedName };
+}
+
+// ---------------------------------------------------------------- offers
 
 export type OfferState =
   | { status: "idle" }
@@ -56,7 +115,6 @@ const offerSchema = z.object({
   itemSlug: z.string().min(1),
   name: z.string().trim().min(1, "Name, please.").max(60),
   contact: z.string().trim().min(3, "Leave a way to reach you — handle, number, anything.").max(120),
-  mode: z.enum(["asking", "offer"]),
   amount: z.string().trim().optional(),
   message: z.string().trim().max(400).optional(),
 });
@@ -66,16 +124,13 @@ export async function makeOfferAction(_prev: OfferState, formData: FormData): Pr
   if (!parsed.success) {
     return { status: "error", message: parsed.error.issues[0]?.message ?? "Check the form." };
   }
-  const { itemId, closetSlug, itemSlug, name, contact, mode, amount, message } = parsed.data;
+  const { itemId, closetSlug, itemSlug, name, contact, amount, message } = parsed.data;
 
-  let amountCents: number | null = null;
-  if (mode === "offer") {
-    const n = Number(String(amount).replace(/[^0-9.]/g, ""));
-    if (!Number.isFinite(n) || n <= 0) {
-      return { status: "error", message: "Put a number on it." };
-    }
-    amountCents = Math.round(n * 100);
+  const n = Number(String(amount).replace(/[^0-9.]/g, ""));
+  if (!Number.isFinite(n) || n <= 0) {
+    return { status: "error", message: "Put a number on it." };
   }
+  const amountCents = Math.round(n * 100);
 
   const item = await getItemById(itemId);
   const result = await createOffer({ itemId, name, contact, amountCents, message });
@@ -92,5 +147,5 @@ export async function makeOfferAction(_prev: OfferState, formData: FormData): Pr
   revalidatePath(`/closet/${closetSlug}/dibs`);
   revalidatePath("/admin");
   void itemSlug;
-  return { status: "sent", itemName: item?.name ?? "it", asking: mode === "asking" };
+  return { status: "sent", itemName: item?.name ?? "it", asking: false };
 }

@@ -8,6 +8,19 @@ export type Photo = {
   height: number;
 };
 
+/** one person's spot in the line for a piece. queue[0] is the current holder. */
+export type DibsClaim = {
+  id: string;
+  name: string;
+  contact: string;
+  note: string | null;
+  /** null = gift; a number = the price they've committed to (asking, or an accepted offer) */
+  amountCents: number | null;
+  /** how they got in line */
+  source: "dibs" | "offer";
+  at: string;
+};
+
 export type Item = {
   id: string;
   closetSlug: string;
@@ -27,9 +40,12 @@ export type Item = {
   priceCents: number | null;
   currency: string;
   status: ItemStatus;
-  claimantName: string | null;
-  claimantNote: string | null;
-  claimedAt: string | null;
+  /** the line for this piece — ordered, max MAX_DIBS_QUEUE, [0] holds it */
+  queue: DibsClaim[];
+  /** legacy single-claim fields; normalised into `queue` on load */
+  claimantName?: string | null;
+  claimantNote?: string | null;
+  claimedAt?: string | null;
   photos: Photo[];
   /** provenance / story field */
   story: string | null;

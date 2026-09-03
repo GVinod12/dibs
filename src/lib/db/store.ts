@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import type { Database } from "./types";
 import { seedDatabase } from "./seed";
+import { normalizeDb } from "./normalize";
 
 /**
  * The whole store is one small JSON document (closets / items / looks / offers).
@@ -43,7 +44,7 @@ const cache: Cache =
 
 async function fileRead(): Promise<Database> {
   try {
-    return JSON.parse(await fs.readFile(DB_PATH, "utf8")) as Database;
+    return normalizeDb(JSON.parse(await fs.readFile(DB_PATH, "utf8")) as Database);
   } catch {
     const fresh = seedDatabase();
     await fs.mkdir(DATA_DIR, { recursive: true });
@@ -112,9 +113,13 @@ async function pgEnsureSchema(): Promise<void> {
 async function pgLoadRow(): Promise<Row> {
   await pgEnsureSchema();
   const sql = await pgSql();
+  const row = (rows: Row[], version: string | number): Row => ({
+    doc: normalizeDb(rows[0].doc),
+    version: String(version),
+  });
 
   const rows = (await sql`SELECT doc, version FROM dibs_store WHERE id = 'main'`) as Row[];
-  if (rows.length) return { doc: rows[0].doc, version: String(rows[0].version) };
+  if (rows.length) return row(rows, rows[0].version);
 
   // first boot: seed. RETURNING tells us if our insert won the race.
   const seed = seedDatabase();
@@ -122,14 +127,14 @@ async function pgLoadRow(): Promise<Row> {
     INSERT INTO dibs_store (id, doc, version) VALUES ('main', ${JSON.stringify(seed)}::jsonb, 0)
     ON CONFLICT (id) DO NOTHING
     RETURNING doc, version`) as Row[];
-  if (inserted.length) return { doc: inserted[0].doc, version: String(inserted[0].version) };
+  if (inserted.length) return row(inserted, inserted[0].version);
 
   // another instance seeded concurrently — read theirs
   const again = (await sql`SELECT doc, version FROM dibs_store WHERE id = 'main'`) as Row[];
-  if (again.length) return { doc: again[0].doc, version: String(again[0].version) };
+  if (again.length) return row(again, again[0].version);
 
   // last resort (e.g. DB unreachable mid-build) — serve the seed, don't crash
-  return { doc: seed, version: "0" };
+  return { doc: normalizeDb(seed), version: "0" };
 }
 
 async function pgGetDb(): Promise<Database> {
