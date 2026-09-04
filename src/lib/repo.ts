@@ -2,6 +2,7 @@ import { nanoid } from "nanoid";
 import { getDb, mutate } from "./db/store";
 import type { Item, Look, Offer, Closet, DibsClaim } from "./db/types";
 import { MAX_DIBS_QUEUE } from "./constants";
+import { uniqueSlug } from "./slug";
 import type { Category, ItemStatus, ItemType, OfferStatus } from "./constants";
 
 /**
@@ -56,14 +57,7 @@ export type ItemFilter = {
 
 const STATUS_RANK: Record<ItemStatus, number> = { AVAILABLE: 0, DIBSED: 1, SOLD: 2, GIVEN: 3 };
 
-export function slugify(input: string): string {
-  const base = input
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "")
-    .slice(0, 60);
-  return base || `piece-${nanoid(6)}`;
-}
+export { slugify } from "./slug";
 
 export async function listItems(slug: string, filter: ItemFilter = {}): Promise<Item[]> {
   const db = await getDb();
@@ -154,7 +148,7 @@ export async function upsertLook(closetSlug: string, draft: LookDraft): Promise<
     const look: Look = {
       id: `look_${nanoid(10)}`,
       closetSlug,
-      slug: slugify(draft.title),
+      slug: uniqueSlug(draft.title, db.looks.map((l) => l.slug)),
       title: draft.title,
       caption: draft.caption ?? null,
       photo: draft.photo ?? { url: "", alt: draft.title, width: 1000, height: 1250 },
@@ -376,7 +370,16 @@ export async function upsertItem(
     if (draft.id) {
       const existing = db.items.find((i) => i.id === draft.id);
       if (existing) {
-        Object.assign(existing, draft);
+        // only copy keys the caller actually set — a bare `undefined` here used
+        // to blank the slug and 404 the item's page
+        for (const [k, v] of Object.entries(draft)) {
+          if (v !== undefined) (existing as Record<string, unknown>)[k] = v;
+        }
+        // keep the URL in step with a renamed piece, without colliding
+        const taken = db.items.filter((i) => i.id !== existing.id).map((i) => i.slug);
+        if (!existing.slug || taken.includes(existing.slug)) {
+          existing.slug = uniqueSlug(existing.name, taken);
+        }
         return existing;
       }
     }
@@ -384,7 +387,7 @@ export async function upsertItem(
     const item: Item = {
       id: draft.id ?? `itm_${nanoid(10)}`,
       closetSlug,
-      slug: draft.slug ?? slugify(draft.name),
+      slug: draft.slug || uniqueSlug(draft.name, db.items.map((i) => i.slug)),
       name: draft.name,
       category: draft.category ?? "Tops",
       brand: draft.brand ?? null,
