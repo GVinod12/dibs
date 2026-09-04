@@ -107,35 +107,39 @@ export async function catalogueAction(_prev: CatalogueState, formData: FormData)
   const file = formData.get("photo");
   const intent = (String(formData.get("intent")) === "SELL" ? "SELL" : "GIFT") as "GIFT" | "SELL";
   const notes = String(formData.get("notes") ?? "").slice(0, 500) || undefined;
-  const w = Number(formData.get("photoW")) || 1000;
-  const h = Number(formData.get("photoH")) || 1250;
 
   if (!(file instanceof File) || file.size === 0) {
     return { status: "error", message: "Pick a photo first." };
   }
-  if (file.size > 8 * 1024 * 1024) {
-    return { status: "error", message: "That photo's over 8 MB — shrink it a touch." };
+  if (file.size > 25 * 1024 * 1024) {
+    return { status: "error", message: "That photo's over 25 MB — shrink it a touch." };
   }
 
+  // normalise to JPEG first — HEIC / oversized files won't render or feed the AI raw
   const bytes = await file.arrayBuffer();
-  const base64 = Buffer.from(bytes).toString("base64");
-  const saved = await saveImage(bytes, file.type);
+  let saved;
+  let jpegBase64: string;
+  try {
+    const { processImage } = await import("@/lib/images");
+    const processed = await processImage(bytes);
+    jpegBase64 = processed.buffer.toString("base64");
+    saved = await saveImage(bytes);
+  } catch {
+    return { status: "error", message: "Couldn't read that image. Try a JPEG or PNG." };
+  }
 
-  const outcome = await catalogueFromImage({ base64, mediaType: file.type, intent, notes });
+  const outcome = await catalogueFromImage({ base64: jpegBase64, mediaType: "image/jpeg", intent, notes });
   if (!outcome.ok) {
     // photo is still saved so the owner can catalogue it by hand
-    return {
-      status: "error",
-      message: outcome.message,
-    };
+    return { status: "error", message: outcome.message };
   }
   return {
     status: "done",
     draft: outcome.draft,
     model: outcome.model,
     photoUrl: saved.url,
-    photoW: w,
-    photoH: h,
+    photoW: saved.width,
+    photoH: saved.height,
   };
 }
 
@@ -189,15 +193,17 @@ export async function saveItemAction(_prev: SaveState, formData: FormData): Prom
   }
   const upload = formData.get("newPhoto");
   if (upload instanceof File && upload.size > 0) {
-    const bytes = await upload.arrayBuffer();
-    const saved = await saveImage(bytes, upload.type);
+    if (upload.size > 25 * 1024 * 1024) {
+      return { status: "error", message: "That photo's over 25 MB — shrink it a touch." };
+    }
+    let saved;
+    try {
+      saved = await saveImage(await upload.arrayBuffer());
+    } catch {
+      return { status: "error", message: "Couldn't read that photo. Try a JPEG or PNG." };
+    }
     photos = [
-      {
-        url: saved.url,
-        alt: d.altText || d.name,
-        width: Number(formData.get("newPhotoW")) || 1000,
-        height: Number(formData.get("newPhotoH")) || 1250,
-      },
+      { url: saved.url, alt: d.altText || d.name, width: saved.width, height: saved.height },
       ...photos,
     ];
   }
@@ -263,16 +269,16 @@ export async function saveLookAction(_prev: LookSaveState, formData: FormData): 
   let photo: LookDraft["photo"] | undefined;
   const upload = formData.get("photo");
   if (upload instanceof File && upload.size > 0) {
-    if (upload.size > 8 * 1024 * 1024) {
-      return { status: "error", message: "That photo's over 8 MB — shrink it a touch." };
+    if (upload.size > 25 * 1024 * 1024) {
+      return { status: "error", message: "That photo's over 25 MB — shrink it a touch." };
     }
-    const saved = await saveImage(await upload.arrayBuffer(), upload.type);
-    photo = {
-      url: saved.url,
-      alt: d.altText || d.title,
-      width: Number(d.photoW) || 1000,
-      height: Number(d.photoH) || 1250,
-    };
+    let saved;
+    try {
+      saved = await saveImage(await upload.arrayBuffer());
+    } catch {
+      return { status: "error", message: "Couldn't read that photo. Try a JPEG or PNG." };
+    }
+    photo = { url: saved.url, alt: d.altText || d.title, width: saved.width, height: saved.height };
   } else if (d.photoUrl) {
     photo = {
       url: d.photoUrl,

@@ -69,7 +69,7 @@ export function LookEditor({ look, items }: { look?: Look; items: ItemLite[] }) 
             id="photo"
             type="file"
             name="photo"
-            accept="image/jpeg,image/png,image/webp"
+            accept="image/*,.heic,.heif"
             onChange={onFile}
             className="block w-full text-sm file:mr-3 file:border-2 file:border-[var(--color-ink)] file:bg-[var(--color-acid)] file:px-3 file:py-1.5 file:text-xs file:font-bold file:uppercase"
           />

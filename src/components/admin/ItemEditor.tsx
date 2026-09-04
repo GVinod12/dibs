@@ -151,7 +151,7 @@ export function ItemEditor({ item, aiOn }: { item?: Item; aiOn: boolean }) {
           <input
             type="file"
             name="photo"
-            accept="image/jpeg,image/png,image/webp"
+            accept="image/*,.heic,.heif"
             required
             disabled={!aiOn}
             className="mt-3 block w-full text-sm file:mr-3 file:border-2 file:border-[var(--color-ink)] file:bg-[var(--color-acid)] file:px-3 file:py-1.5 file:text-xs file:font-bold file:uppercase"
@@ -221,7 +221,7 @@ export function ItemEditor({ item, aiOn }: { item?: Item; aiOn: boolean }) {
               id="newPhoto"
               type="file"
               name="newPhoto"
-              accept="image/jpeg,image/png,image/webp"
+              accept="image/*,.heic,.heif"
               className="block w-full text-sm file:mr-3 file:border-2 file:border-[var(--color-ink)] file:bg-white file:px-3 file:py-1.5 file:text-xs file:font-bold file:uppercase"
               onChange={(e) => {
                 const f = e.target.files?.[0];
