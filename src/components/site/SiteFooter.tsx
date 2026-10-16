@@ -34,6 +34,14 @@ export function SiteFooter({ closetTitle, ownerName }: { closetTitle: string; ow
           <Link href="/admin" className="hover:text-[var(--color-acid)]">
             Owner
           </Link>
+          <a
+            href="https://github.com/GVinod12/dibs"
+            target="_blank"
+            rel="noreferrer"
+            className="hover:text-[var(--color-acid)]"
+          >
+            Source
+          </a>
         </div>
       </div>
       <p className="px-6 pb-8 font-[family-name:var(--font-caveat)] text-lg text-[var(--color-fog)]">
