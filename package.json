@@ -2,6 +2,14 @@
   "name": "dibs",
   "version": "0.1.0",
   "private": true,
+  "description": "A shareable digital closet — friends call dibs on the clothes you are giving away or selling.",
+  "homepage": "https://dibs-beige.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GVinod12/dibs.git"
+  },
+  "license": "MIT",
+  "author": "Gopika Vinod",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
