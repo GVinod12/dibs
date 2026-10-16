@@ -13,10 +13,15 @@ import sharp from "sharp";
  * POST, owner only. Safe to run repeatedly — a photo that already decodes is
  * left alone.
  */
-export async function POST() {
+export async function POST(request: Request) {
   if (!(await isAdmin())) {
     return NextResponse.json({ error: "unauthorised" }, { status: 401 });
   }
+
+  // Relative photo URLs (/uploads/..) are files baked into a deployment. Pass
+  // ?from=<origin> to resolve them against a deployment that still serves them,
+  // which is how they get migrated into blob storage.
+  const from = new URL(request.url).searchParams.get("from") || new URL(request.url).origin;
 
   const db = await getDb();
   const urls = new Set<string>();
@@ -28,13 +33,15 @@ export async function POST() {
 
   for (const url of urls) {
     try {
-      const res = await fetch(url, { cache: "no-store" });
+      const absolute = url.startsWith("http") ? url : new URL(url, from).toString();
+      const res = await fetch(absolute, { cache: "no-store" });
       if (!res.ok) {
         report.push({ url, action: `skip (fetch ${res.status})` });
         continue;
       }
       const buf = Buffer.from(await res.arrayBuffer());
-      let needsFix = isHeic(buf);
+      // a relative URL always needs moving into blob storage, even if it decodes
+      let needsFix = isHeic(buf) || !url.startsWith("http");
       if (!needsFix) {
         try {
           const meta = await sharp(buf).metadata();
