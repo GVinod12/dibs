@@ -1,121 +1,197 @@
+<div align="center">
+
 # DIBS
 
 **My closet, temporarily available to the public.**
 
-A private, shareable digital closet. Friends open a link, browse the pieces you're
-parting with, and **call dibs** on what they want — **GIFT** (free) or **SELL**
-(priced, with an offer flow). No group chat, no app, no accounts.
+A private, shareable digital closet. Friends open one link, browse the pieces
+you're parting with, and **call dibs** — instead of forty messages in a group chat
+and someone always missing out.
 
-Each piece takes a **queue of up to 3**: the first person holds it, the next two
-wait. If someone ahead drops out — they pass, or the owner marks them as fallen
-through — the next person is promoted automatically.
+[**Live demo →**](https://dibs-beige.vercel.app)
 
-Built as a portfolio piece: product thinking, creative direction, UX/UI, a real
-AI integration, and Claude Code. Art direction implemented from a Claude Design
-board (`DIBS.dc.html`) — *"visual chaos, perfect UX."*
+[![Next.js](https://img.shields.io/badge/Next.js-16-000?logo=next.js&logoColor=white)](https://nextjs.org)
+[![React](https://img.shields.io/badge/React-19-087ea4?logo=react&logoColor=white)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-06b6d4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Licence: MIT](https://img.shields.io/badge/Licence-MIT-c6f000)](LICENSE)
+
+</div>
 
 ---
 
-## Run it
+## The problem
 
-```bash
-npm install
-cp .env.example .env.local   # edit values (see below)
-npm run dev                  # http://localhost:3000
+You're moving in a week and have to shed most of a wardrobe. The default is a
+chaotic group chat: photos scattered across the thread, *"is this still
+available?"*, two people claiming the same jacket, and no record of who gets what.
+
+## The product
+
+One shareable link. Two lanes:
+
+- **GIFT** — free pieces a friend claims with their name
+- **SELL** — the designer bits, with a price and an offer flow
+
+…and a **queue of three** on every piece. The first person holds it, two wait. If
+someone ahead drops out — they pass, or the owner marks them as fallen through —
+the next person is promoted automatically. That's the bit that actually solves the
+coordination problem, not just the display problem.
+
+No accounts. No app. No group chat.
+
+---
+
+## Screens
+
+|  |  |
+|---|---|
+| ![Landing](docs/screenshots/landing.png) | ![The closet](docs/screenshots/closet.png) |
+| **Landing** — the pitch, and a peek inside | **The closet** — filter gifts / for-sale / category |
+| ![Item](docs/screenshots/item.png) | ![Lookbook](docs/screenshots/lookbook.png) |
+| **A piece** — story, specs, and the dibs action | **Lookbook** — outfits that link back to pieces |
+
+---
+
+## Features
+
+- **Collage gallery** — irregular masonry, every tile deterministically tilted
+- **Call dibs** — a 3-deep queue per piece with automatic promotion
+- **Offers** — counter-offers on for-sale pieces, accepted or declined by the owner
+- **Lookbook** — outfit photography where each look links its pieces, so a friend
+  can call dibs straight from a look
+- **The dibs board** — who claimed what, and what's still on the table
+- **Owner dashboard** — add/edit pieces and looks, manage every queue, accept offers
+- **AI cataloguing** — upload a photo, get a drafted listing *in the owner's voice*
+- **Mobile-first** — the collage recomposes into a clean single column, and
+  rotations tame themselves via one CSS custom property
+
+---
+
+## Design system
+
+The art direction was designed as a **7-screen board first**, then implemented as
+spec. The brief was explicit: **"visual chaos, perfect UX."** Fashion scrapbook ×
+digital moodboard × Gen-Z internet — deliberately *not* minimalist SaaS.
+
+Three rules from the board are enforced in code, not just eyeballed:
+
+> **Chrome stays black and fixed.**
+> **State is always a coloured *label*, never a colour alone.**
+> **Only decoration rotates — never text you must read.**
+
+**Type** — Anton (display) · Instrument Serif (editorial voice) · Space Grotesk
+(UI) · Caveat (margin notes)
+
+**Palette** — hot pink `#FF2D8B` · acid `#C6F000` · cobalt `#1B3FD8` · tomato
+`#F0402A` · cream `#F4EEE4` · ink `#14110F`
+
+Collage is a component system — `Tape`, `Sticker`, `Stamp`, `Scrawl`, `PhotoFrame`,
+`Doodle` — using **seeded** pseudo-randomness so rotations stay identical between
+server render and hydration instead of jittering on every navigation. Decorative
+stickers are a user toggle, and everything respects `prefers-reduced-motion`.
+
+---
+
+## Architecture
+
+```
+src/
+├─ app/                  routes, server actions, API handlers
+├─ components/
+│  ├─ collage/           Tape · Sticker · Stamp · Scrawl · PhotoFrame · Doodle
+│  ├─ dibs/              the claim / queue / offer panel
+│  ├─ item/ · closet/    gallery + cards
+│  ├─ admin/             owner dashboard editors
+│  └─ site/              nav, footer
+└─ lib/
+   ├─ repo.ts            ← the only module that touches the store
+   ├─ db/                store (file | Postgres), seed, normalise
+   ├─ ai/                prompt + Anthropic vision call
+   ├─ images.ts          HEIC decode → rotate → resize → JPEG
+   └─ storage.ts         images (local disk | Vercel Blob)
 ```
 
-First run creates `data/db.json` from the seed wardrobe (14 pieces, 5 looks).
+**Three decisions worth naming:**
 
-| Route | What |
-|---|---|
-| `/` | Landing |
-| `/closet/the-closet` | The gallery — filter gifts / for-sale / category, sort |
-| `/closet/the-closet/item/<slug>` | A piece — details + call dibs / make an offer |
-| `/closet/the-closet/looks` | Lookbook |
-| `/closet/the-closet/dibs` | Who's claimed what + offers on the table |
-| `/admin` | Owner dashboard (password below) |
+**A repository seam.** Every read and write goes through `lib/repo.ts`. Pages never
+touch the database. Swapping a JSON file for Postgres was a one-file change — which
+is why the store is *dual-mode* today: no env vars → local JSON file, `DATABASE_URL`
+set → Postgres. Local development needs zero setup.
 
-## Environment (`.env.local`)
+**Optimistic concurrency.** The closet is one JSON document behind a version column.
+Writes are `UPDATE … WHERE version = $n` with retry, so two friends calling dibs from
+different serverless instances can't clobber each other.
 
-| Key | Purpose |
-|---|---|
-| `DIBS_ADMIN_PASSWORD` | Password for `/admin`. Example ships as `letmein`. |
-| `ANTHROPIC_API_KEY` | Optional. Turns on AI cataloguing. **Without it the AI button says so plainly — nothing is faked.** |
-| `DIBS_AI_MODEL` | Model for cataloguing. Default `claude-sonnet-5`. |
+**Self-healing data.** Every read runs a normaliser that migrates older record shapes
+forward — queues, slugs, statuses. When a bug once blanked an item's URL slug, the fix
+shipped *and* repaired the live data on the next page load, with no migration script.
 
----
+### The AI, honestly
 
-## Adding your own clothes
+Upload a garment photo and Claude drafts the name, category, colour, condition, tags,
+alt text, a description in the owner's voice, and a suggested resale **range**. A human
+then reviews and edits **every field** before publishing, and prices are always labelled
+estimates, never valuations.
 
-### Through the app (normal way)
-
-1. `/admin` → sign in with `DIBS_ADMIN_PASSWORD`.
-2. **+ add a piece** → upload one clear photo.
-3. If `ANTHROPIC_API_KEY` is set: **Ask AI** drafts the name, category, colour,
-   condition, tags, a description in the owner's voice, and a suggested resale
-   **range** (SELL only). You review and edit **every field** before publishing.
-   The price is always labelled an estimate, never a valuation.
-4. No key: fill the form by hand. The photo still uploads.
-
-Uploaded photos are written to `public/uploads/`.
-
-### Editing the demo wardrobe (seed)
-
-1. Drop image files into `public/seed/`.
-2. Reference them in [`src/lib/db/seed.ts`](src/lib/db/seed.ts) — each photo needs
-   `filename`, pixel `width`, `height`, and `alt` text.
-3. Delete `data/db.json` and reload — it re-seeds from the file.
-
-## The data store
-
-Everything lives in **one JSON file: `data/db.json`** (git-ignored, created from
-the seed on first run). All reads/writes go through the repository layer in
-[`src/lib/repo.ts`](src/lib/repo.ts) — pages and actions never touch the store
-directly.
-
-- **Reset:** delete `data/db.json`.
-- **Inspect:** open the file, it's plain JSON.
-
-### Deploying
-
-Both `store.ts` and `storage.ts` are **dual-mode**, chosen by env var:
-
-| env | store | images |
-|---|---|---|
-| none | `data/db.json` | `public/uploads/` |
-| `DATABASE_URL` / `POSTGRES_URL` | Postgres (Neon), one JSON row + optimistic locking | — |
-| `BLOB_READ_WRITE_TOKEN` | — | Vercel Blob |
-
-Live at **https://dibs-beige.vercel.app** (Vercel + Neon Postgres + Vercel Blob,
-all free tier). Full setup and re-deploy steps in [DEPLOY.md](DEPLOY.md).
+With no API key configured, the button says so plainly and you fill the form by hand.
+**It never fabricates a result and presents it as the model's.**
 
 ---
 
 ## Stack
 
-Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 ·
-`@anthropic-ai/sdk` (vision cataloguing) · `motion` · `zod` · JSON file store.
+| | |
+|---|---|
+| Framework | Next.js 16 (App Router, Server Components, Server Actions) |
+| Language | TypeScript, React 19 |
+| Styling | Tailwind CSS v4 |
+| Database | Neon Postgres (serverless) — or a local JSON file |
+| Images | Vercel Blob · `sharp` · `heic-convert` |
+| AI | Anthropic API (`@anthropic-ai/sdk`) — vision + structured tool use |
+| Validation | `zod` on every server action |
+| Motion | `motion` |
+| Hosting | Vercel |
 
-## Design system
+---
 
-Tokens and rules in [`src/app/globals.css`](src/app/globals.css); collage
-primitives in [`src/components/collage/`](src/components/collage/).
+## Run it locally
 
-- **Type:** Anton (display) · Instrument Serif (editorial voice) · Space Grotesk
-  (UI) · Caveat (margin notes).
-- **State is always a coloured *label*, never a colour alone:** AVAILABLE =
-  acid green, DIBSED ♡ = hot pink, FOR SALE = cobalt, GONE = tomato.
-- **Chrome stays black and fixed. Only decoration rotates — never text you must
-  read.** Stickers (stars, scrawls, tape) are a toggle.
-
-## Verify the flow
-
+```bash
+git clone https://github.com/<you>/dibs.git
+cd dibs
+npm install
+cp .env.example .env.local
+npm run dev
 ```
-landing → closet → filter → open a gift → call dibs (stamp slams, confetti)
-        → open a SELL piece → make an offer
-        → /admin → see the claim + offer, accept it, mark something SOLD
-        → + add a piece → (with a key) AI draft → edit → publish
-        → /closet/the-closet/dibs → the claim shows up
-```
 
-Reset anytime: `rm data/db.json`.
+Open <http://localhost:3000>. No database needed — the first run seeds a demo closet
+from `data/initial.json` into `data/db.json`.
+
+The owner dashboard is at `/admin` (password from `.env.local`).
+
+### Environment
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `DIBS_ADMIN_PASSWORD` | yes | Guards `/admin` |
+| `ANTHROPIC_API_KEY` | no | Enables AI cataloguing — without it the UI says so |
+| `DATABASE_URL` | no | Switches the store to Postgres |
+| `BLOB_READ_WRITE_TOKEN` | no | Switches image storage to Vercel Blob |
+
+Deployment steps are in **[DEPLOY.md](DEPLOY.md)**.
+
+---
+
+## Notes
+
+The demo imagery in `public/seed/` is placeholder photography from
+[Unsplash](https://unsplash.com/license) — see
+[`public/seed/CREDITS.md`](public/seed/CREDITS.md). Real uploads go to blob storage
+and are not part of this repository.
+
+Built with [Claude Code](https://claude.com/claude-code).
+
+## Licence
+
+[MIT](LICENSE)

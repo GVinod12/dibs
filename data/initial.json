@@ -5,284 +5,343 @@
       "title": "The Whole Damn Wardrobe",
       "ownerName": "Gopi",
       "tagline": "my closet, temporarily available to the public.",
-      "intro": "I'm leaving Barcelona in a few days and I have very little baggage limit, so I'd love for my clothes to have a new home!",
+      "intro": "I’m moving and my baggage allowance has opinions. Everything here needs a new home by the end of the month — some of it’s a gift, some of it’s for sale, all of it was loved. Call dibs before your group chat does.",
       "createdAt": "2026-07-21T10:00:00.000Z"
     }
   ],
   "items": [
     {
-      "id": "itm_rK72ZVhpfQ",
       "closetSlug": "the-closet",
-      "slug": "floral-dress",
-      "name": "Floral Dress",
-      "category": "Dresses",
-      "brand": "Pull & Bear",
-      "size": "S",
-      "color": "White & Pink",
-      "condition": "Well loved",
-      "description": "A floral dress with a deep neckline and high slits",
-      "hook": "Pretty summer dress",
+      "currency": "EUR",
+      "queue": [],
+      "story": "Car-boot sale, three euros and a compliment. Two weddings and one funeral, impeccable at all three.",
+      "aiGenerated": false,
+      "aiPriceLowCents": null,
+      "aiPriceHighCents": null,
+      "id": "itm_demo_cape",
+      "slug": "the-crochet-cape",
+      "name": "The Crochet Cape",
+      "category": "Vintage",
+      "brand": "Handmade, unlabelled",
+      "size": "One size",
+      "color": "Undyed cream",
+      "condition": "Vintage character",
+      "hook": "Your nan made this. Not your nan specifically. Someone’s nan.",
+      "description": "Hand-crocheted, tasselled, and completely without practical purpose — which is the point. Throw it over anything and become 40% more interesting. Tiny snag on the back left that I’ve decided is a feature.",
       "tags": [
-        "floral dress",
-        "summer style",
-        "feminine fashion",
-        "outfit inspiration",
-        "floral outfit",
-        "dress styling",
-        "fashion"
+        "crochet",
+        "70s",
+        "layering",
+        "one of one"
       ],
       "type": "GIFT",
       "priceCents": null,
-      "currency": "EUR",
       "status": "AVAILABLE",
       "photos": [
         {
-          "url": "/uploads/1788224756076-ygvGKOI_.jpg",
-          "alt": "Floral Dress",
-          "width": 590,
-          "height": 927
+          "url": "/seed/crochet-cape.jpg",
+          "width": 1045,
+          "height": 1500,
+          "alt": "Cream hand-crocheted tasselled cape on a wooden hanger"
         }
       ],
-      "story": null,
-      "aiGenerated": false,
-      "aiPriceLowCents": null,
-      "aiPriceHighCents": null,
       "sortIndex": 0,
-      "createdAt": "2026-09-01T01:05:56.085Z",
-      "queue": []
+      "createdAt": "2026-08-18T10:00:00.000Z"
     },
     {
-      "id": "itm_eJlf7Wr09Y",
       "closetSlug": "the-closet",
-      "slug": "pink-crop-top",
-      "name": "Pink Crop Top",
-      "category": "Tops",
-      "brand": "Zara",
-      "size": "XS",
-      "color": "Pink",
-      "condition": "Loved",
-      "description": "A cute summer crop top with a sporty halter neckline",
-      "hook": null,
-      "tags": [],
-      "type": "GIFT",
-      "priceCents": null,
       "currency": "EUR",
-      "status": "AVAILABLE",
-      "photos": [
+      "queue": [
         {
-          "url": "/uploads/1788224925063-zH7O4Tav.jpg",
-          "alt": "Pink Crop Top",
-          "width": 590,
-          "height": 932
+          "id": "clm_demo_1",
+          "name": "Priya",
+          "contact": "@priya",
+          "note": "been eyeing this for two years. it is my time.",
+          "amountCents": null,
+          "source": "dibs",
+          "at": "2026-08-17T10:00:00.000Z"
         }
       ],
-      "story": null,
+      "story": "Lived on the back of my desk chair so long it left a mark. We’re both fine now.",
       "aiGenerated": false,
       "aiPriceLowCents": null,
       "aiPriceHighCents": null,
-      "sortIndex": 1,
-      "createdAt": "2026-09-01T01:08:45.066Z",
-      "queue": []
-    },
-    {
-      "id": "itm_OAiXHMi2Jp",
-      "closetSlug": "the-closet",
-      "slug": "oversized-brown-blazer",
-      "name": "Oversized Brown Blazer",
-      "category": "Tops",
-      "brand": "Lefties",
-      "size": "M",
-      "color": "Brown",
-      "condition": "Barely worn",
-      "description": "Oversized brown blazer from Lefties, barely worn and in great condition. Relaxed fit with a classic silhouette, perfect for layering over casual or polished outfits.",
-      "hook": null,
-      "tags": [],
-      "type": "GIFT",
-      "priceCents": null,
-      "currency": "EUR",
-      "status": "AVAILABLE",
-      "photos": [
-        {
-          "url": "/uploads/1788225047865-utzyBFDU.jpg",
-          "alt": "Oversized Brown Blazer",
-          "width": 590,
-          "height": 940
-        }
-      ],
-      "story": null,
-      "aiGenerated": false,
-      "aiPriceLowCents": null,
-      "aiPriceHighCents": null,
-      "sortIndex": 2,
-      "createdAt": "2026-09-01T01:10:47.874Z",
-      "queue": []
-    },
-    {
-      "id": "itm_fSzZMoMDDs",
-      "closetSlug": "the-closet",
-      "slug": "multicolored-v-neck-top",
-      "name": "Multicolored V neck Top",
-      "category": "Tops",
-      "brand": "Forever21",
-      "size": "S",
-      "color": "Multicolour",
-      "condition": "Loved",
-      "description": "Striped multicolored V-neck top with a flattering fit. Easy to style and perfect for adding a subtle pop of color to everyday looks.",
-      "hook": null,
-      "tags": [],
-      "type": "GIFT",
-      "priceCents": null,
-      "currency": "EUR",
-      "status": "AVAILABLE",
-      "photos": [
-        {
-          "url": "/uploads/1788225189812-zTNzM3HB.jpg",
-          "alt": "Multicolored V neck Top",
-          "width": 590,
-          "height": 956
-        }
-      ],
-      "story": null,
-      "aiGenerated": false,
-      "aiPriceLowCents": null,
-      "aiPriceHighCents": null,
-      "sortIndex": 3,
-      "createdAt": "2026-09-01T01:13:09.818Z",
-      "queue": []
-    },
-    {
-      "id": "itm_4zf_pBlLuC",
-      "closetSlug": "the-closet",
-      "slug": "pink-mini-skirt",
-      "name": "Pink Mini Skirt",
-      "category": "Bottoms",
-      "brand": null,
-      "size": null,
-      "color": "Pink",
-      "condition": "Loved",
-      "description": "Cute pink mini skirt featuring a white design",
-      "hook": null,
-      "tags": [],
-      "type": "GIFT",
-      "priceCents": null,
-      "currency": "EUR",
-      "status": "AVAILABLE",
-      "photos": [
-        {
-          "url": "/uploads/1788225305032-qir6YUBV.jpg",
-          "alt": "Pink Mini Skirt",
-          "width": 590,
-          "height": 941
-        }
-      ],
-      "story": null,
-      "aiGenerated": false,
-      "aiPriceLowCents": null,
-      "aiPriceHighCents": null,
-      "sortIndex": 4,
-      "createdAt": "2026-09-01T01:15:05.035Z",
-      "queue": []
-    },
-    {
-      "id": "itm_SfLyFDn40V",
-      "closetSlug": "the-closet",
-      "slug": "black-sheer-top",
-      "name": "Black Sheer Top",
-      "category": "Tops",
-      "brand": null,
-      "size": "S",
-      "color": null,
+      "id": "itm_demo_trucker",
+      "slug": "sherpa-collar-denim-trucker",
+      "name": "Sherpa-Collar Denim Trucker",
+      "category": "Outerwear",
+      "brand": "Levi’s (the real vintage kind)",
+      "size": "M — fits oversized",
+      "color": "Mid stonewash",
       "condition": "Well loved",
-      "description": "Very pretty sheer black top with tie closures. Slight damage on the sleeve (Easily fixable)",
-      "hook": null,
-      "tags": [],
+      "hook": "The jacket equivalent of a golden retriever.",
+      "description": "Broken in to that not-too-stiff, not-too-slouchy place it takes denim three winters to reach. Sherpa collar for when the pub garden gets ambitious. Goes over everything, forgives everything.",
+      "tags": [
+        "denim",
+        "sherpa",
+        "vintage",
+        "throw-on"
+      ],
       "type": "GIFT",
       "priceCents": null,
+      "status": "DIBSED",
+      "photos": [
+        {
+          "url": "/seed/denim-trucker.jpg",
+          "width": 1100,
+          "height": 825,
+          "alt": "Light-wash denim trucker jacket with a cream sherpa collar"
+        }
+      ],
+      "sortIndex": 1,
+      "createdAt": "2026-08-12T10:00:00.000Z"
+    },
+    {
+      "closetSlug": "the-closet",
       "currency": "EUR",
+      "queue": [],
+      "story": null,
+      "aiGenerated": true,
+      "aiPriceLowCents": 6500,
+      "aiPriceHighCents": 9000,
+      "id": "itm_demo_af1",
+      "slug": "pastel-sneakers",
+      "name": "Pastel Sneakers",
+      "category": "Shoes",
+      "brand": "Nike",
+      "size": "UK 6 / EU 40",
+      "color": "Pastel multi",
+      "condition": "Barely worn",
+      "hook": "Worn three times. All to brunch.",
+      "description": "Chunky double-vision silhouette in the softest sherbet pastels — lilac, butter, baby blue. They make everything you own look more expensive and slightly French. Soles still cream, not grey.",
+      "tags": [
+        "sneakers",
+        "pastel",
+        "chunky"
+      ],
+      "type": "SELL",
+      "priceCents": 7500,
       "status": "AVAILABLE",
       "photos": [
         {
-          "url": "/uploads/1788225432693-ysnDpJVo.jpg",
-          "alt": "Black Sheer Top",
-          "width": 590,
-          "height": 922
+          "url": "/seed/pastel-sneakers.jpg",
+          "width": 1000,
+          "height": 1500,
+          "alt": "Pastel lilac, yellow and blue chunky trainers on a pink background"
         }
       ],
+      "sortIndex": 2,
+      "createdAt": "2026-08-16T10:00:00.000Z"
+    },
+    {
+      "closetSlug": "the-closet",
+      "currency": "EUR",
+      "queue": [],
+      "story": "Bonus-cheque energy. Beautiful, used four times, because I’m scared of it. Someone braver should have it.",
+      "aiGenerated": true,
+      "aiPriceLowCents": 21000,
+      "aiPriceHighCents": 30000,
+      "id": "itm_demo_bag",
+      "slug": "coral-top-handle-bag",
+      "name": "Coral Top-Handle Bag",
+      "category": "Bags",
+      "brand": "Ferragamo",
+      "size": "Small — fits phone, cardholder, one snack",
+      "color": "Coral red",
+      "condition": "Barely worn",
+      "hook": "An investment I am now divesting.",
+      "description": "Structured box shape in a coral that is somehow both loud and tasteful. Silver push-lock, detachable strap, feet on the base so it doesn’t scuff. Full dust bag. Corners perfect — I checked with a torch.",
+      "tags": [
+        "designer",
+        "top handle",
+        "coral",
+        "structured"
+      ],
+      "type": "SELL",
+      "priceCents": 24000,
+      "status": "AVAILABLE",
+      "photos": [
+        {
+          "url": "/seed/coral-bag.jpg",
+          "width": 1100,
+          "height": 1467,
+          "alt": "Structured coral-red leather top-handle handbag with a silver lock"
+        }
+      ],
+      "sortIndex": 3,
+      "createdAt": "2026-08-15T10:00:00.000Z"
+    },
+    {
+      "closetSlug": "the-closet",
+      "currency": "EUR",
+      "queue": [],
       "story": null,
       "aiGenerated": false,
       "aiPriceLowCents": null,
       "aiPriceHighCents": null,
+      "id": "itm_demo_jeans",
+      "slug": "light-wash-boyfriend-jeans",
+      "name": "Light-Wash Boyfriend Jeans",
+      "category": "Denim",
+      "brand": "Madewell",
+      "size": "W28",
+      "color": "Sun-faded light blue",
+      "condition": "Well loved",
+      "hook": "Already broken in on your behalf. You’re welcome.",
+      "description": "That impossible-to-fake soft light wash that only comes from actual sunlight and actual years. Slight whiskering at the hip, one nearly-there hole at the left knee that I forbid you to patch.",
+      "tags": [
+        "denim",
+        "light wash",
+        "worn in"
+      ],
+      "type": "SELL",
+      "priceCents": 3500,
+      "status": "AVAILABLE",
+      "photos": [
+        {
+          "url": "/seed/lightwash-jeans.jpg",
+          "width": 1001,
+          "height": 1500,
+          "alt": "Faded light-wash blue jeans on a wooden hanger in warm light"
+        }
+      ],
+      "sortIndex": 4,
+      "createdAt": "2026-08-11T10:00:00.000Z"
+    },
+    {
+      "closetSlug": "the-closet",
+      "currency": "EUR",
+      "queue": [],
+      "story": "This coat has genuinely changed how strangers speak to me. Please be nice to it.",
+      "aiGenerated": false,
+      "aiPriceLowCents": 9000,
+      "aiPriceHighCents": 16000,
+      "id": "itm_demo_coat",
+      "slug": "camel-wrap-coat",
+      "name": "The Camel Wrap Coat",
+      "category": "Outerwear",
+      "brand": "MaxMara",
+      "size": "UK 10",
+      "color": "Camel",
+      "condition": "Loved",
+      "hook": "Does 80% of the outfit’s work and asks for nothing.",
+      "description": "Wool-blend, self-tie belt, no buttons to lose, a collar you can pop against weather or people. Throw it over gym kit and you look like you have a lunch reservation. Relined at the cuffs by a very good tailor.",
+      "tags": [
+        "camel coat",
+        "wool",
+        "tailored"
+      ],
+      "type": "SELL",
+      "priceCents": 12000,
+      "status": "AVAILABLE",
+      "photos": [
+        {
+          "url": "/seed/camel-coat.jpg",
+          "width": 1000,
+          "height": 1500,
+          "alt": "Camel wool wrap coat with a self-tie belt, worn on stone steps"
+        }
+      ],
       "sortIndex": 5,
-      "createdAt": "2026-09-01T01:17:12.696Z",
-      "queue": []
+      "createdAt": "2026-08-09T10:00:00.000Z"
     },
     {
-      "id": "itm_FiQfxvcnbq",
       "closetSlug": "the-closet",
-      "slug": "long-green-skirt",
-      "name": "Long Green Skirt",
-      "category": "Bottoms",
-      "brand": null,
-      "size": null,
-      "color": "Green",
-      "condition": "Loved",
-      "description": "Long green tiered skirt",
-      "hook": null,
-      "tags": [],
-      "type": "GIFT",
-      "priceCents": null,
       "currency": "EUR",
-      "status": "AVAILABLE",
-      "photos": [
+      "queue": [
         {
-          "url": "/uploads/1788225500361-ZpDqUHF1.jpg",
-          "alt": "Long Green Skirt",
-          "width": 590,
-          "height": 860
+          "id": "clm_demo_2",
+          "name": "Nadia",
+          "contact": "@nadia",
+          "note": "collected! wearing them right now actually",
+          "amountCents": 2800,
+          "source": "dibs",
+          "at": "2026-08-08T10:00:00.000Z"
         }
       ],
-      "story": null,
+      "story": "Found in a jar of buttons at a house clearance. Best fifty cents ever spent.",
       "aiGenerated": false,
       "aiPriceLowCents": null,
       "aiPriceHighCents": null,
+      "id": "itm_demo_sunnies",
+      "slug": "round-gold-sunglasses",
+      "name": "Round Gold Sunglasses",
+      "category": "Accessories",
+      "brand": "Vintage, no markings",
+      "size": "Narrow fit",
+      "color": "Gold frame / bottle-green lens",
+      "condition": "Loved",
+      "hook": "Makes you look like you have opinions about natural wine.",
+      "description": "Tiny round gold frames, proper dark bottle-green glass, that satisfying click when they fold. One nose pad replaced — you genuinely cannot tell unless I point at it, which I just did.",
+      "tags": [
+        "sunglasses",
+        "round",
+        "vintage"
+      ],
+      "type": "SELL",
+      "priceCents": 2800,
+      "status": "GIVEN",
+      "photos": [
+        {
+          "url": "/seed/gold-sunglasses.jpg",
+          "width": 1100,
+          "height": 1100,
+          "alt": "Round gold-framed sunglasses with dark green lenses on marble"
+        }
+      ],
       "sortIndex": 6,
-      "createdAt": "2026-09-01T01:18:20.367Z",
-      "queue": []
-    },
-    {
-      "id": "itm_4gOcDSwvHX",
-      "closetSlug": "the-closet",
-      "slug": "baggy-green-pants",
-      "name": "Baggy Green Pants",
-      "category": "Bottoms",
-      "brand": null,
-      "size": "M",
-      "color": null,
-      "condition": "Loved",
-      "description": "Long green baggy pants with pleats on the front",
-      "hook": null,
-      "tags": [],
-      "type": "GIFT",
-      "priceCents": null,
-      "currency": "EUR",
-      "status": "AVAILABLE",
-      "photos": [
-        {
-          "url": "/uploads/1788225567950-_zpv6EFI.jpg",
-          "alt": "Baggy Green Pants",
-          "width": 590,
-          "height": 959
-        }
-      ],
-      "story": null,
-      "aiGenerated": false,
-      "aiPriceLowCents": null,
-      "aiPriceHighCents": null,
-      "sortIndex": 7,
-      "createdAt": "2026-09-01T01:19:27.955Z",
-      "queue": []
+      "createdAt": "2026-07-31T10:00:00.000Z"
     }
   ],
-  "looks": [],
-  "offers": []
+  "looks": [
+    {
+      "id": "look_demo_1",
+      "closetSlug": "the-closet",
+      "slug": "good-vibes-bad-decisions",
+      "title": "Good Vibes, Bad Decisions",
+      "caption": "striped wide-legs, a white crop, the bag that started three arguments. peak 1am energy.",
+      "photo": {
+        "url": "/seed/look-neon.jpg",
+        "width": 1002,
+        "height": 1500,
+        "alt": "Person under a neon sign in striped wide-leg trousers and a white crop top"
+      },
+      "itemIds": [
+        "itm_demo_sunnies"
+      ],
+      "sortIndex": 0,
+      "createdAt": "2026-07-11T10:00:00.000Z"
+    },
+    {
+      "id": "look_demo_2",
+      "closetSlug": "the-closet",
+      "slug": "retail-therapy-terminal-stage",
+      "title": "Retail Therapy, Terminal Stage",
+      "caption": "big coat, leather gloves, more bags than hands. do not let this person near a card machine.",
+      "photo": {
+        "url": "/seed/look-shopping.jpg",
+        "width": 1100,
+        "height": 733,
+        "alt": "Person in a long coat and sunglasses holding several shopping bags"
+      },
+      "itemIds": [
+        "itm_demo_bag",
+        "itm_demo_coat"
+      ],
+      "sortIndex": 1,
+      "createdAt": "2026-06-11T10:00:00.000Z"
+    }
+  ],
+  "offers": [
+    {
+      "id": "off_demo_1",
+      "itemId": "itm_demo_bag",
+      "name": "Marguerite",
+      "contact": "@marguerite.jpg",
+      "amountCents": 21000,
+      "message": "I know it’s under asking — but it’d be so loved, and I can collect this week.",
+      "status": "PENDING",
+      "createdAt": "2026-08-19T10:00:00.000Z"
+    }
+  ]
 }
